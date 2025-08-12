@@ -49,9 +49,9 @@ try {
     if (!$solicitud) { throw new Exception("No se encontró la solicitud o no tiene permiso para verla."); }
 
     $solicitud['nombre_alumno_firma'] = $solicitud['nombre'] . ' ' . $solicitud['apellido_paterno'] . ' ' . $solicitud['apellido_materno'];
-    $solicitud['nombre_empresa_firma'] = $solicitud['entidad_nombre'];
+    $solicitud['nombre_empresa_firma'] = 'Universidad Politécnica de Texcoco';
 
-    $meses_espanol = ['January' => 'ENERO', 'February' => 'FEBRERO', 'March' => 'MARZO', 'April' => 'ABRIL', 'May' => 'MAYO', 'June' => 'JUNIO', 'July' => 'JULIO', 'August' => 'AGOSTO', 'September' => 'SEPTIEMBRE', 'October' => 'OCTUBRE', 'November' => 'NOVIEMBRE', 'December' => 'DICIEMBRE'];
+    $meses_espanol = ['January' => 'JULIO', 'February' => 'FEBRERO', 'March' => 'MARZO', 'April' => 'ABRIL', 'May' => 'MAYO', 'June' => 'JUNIO', 'July' => 'JULIO', 'August' => 'AGOSTO', 'September' => 'SEPTIEMBRE', 'October' => 'OCTUBRE', 'November' => 'NOVIEMBRE', 'December' => 'DICIEMBRE'];
     
     $fecha_inicio = new DateTime($solicitud['periodo_inicio']);
     $solicitud['periodo_inicio_dia'] = $fecha_inicio->format('d');
@@ -62,11 +62,6 @@ try {
     $solicitud['periodo_fin_dia'] = $fecha_fin->format('d');
     $solicitud['periodo_fin_mes'] = $meses_espanol[$fecha_fin->format('F')];
     $solicitud['periodo_fin_anio'] = $fecha_fin->format('Y');
-
-    // Suponemos un valor para el tipo de programa, ya que no estaba en la consulta.
-    // En tu sistema real, deberás añadir `s.tipo_programa` a la consulta SQL.
-    $solicitud['tipo_programa'] = $solicitud['tipo_programa'] ?? 'Apoyo a proyectos productivos';
-
 
 } catch (Exception $e) {
     http_response_code(500);
@@ -79,170 +74,168 @@ try {
     <meta charset="UTF-8">
     <title>Anexo F - Solicitud</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 10pt; margin: 0; }
-        @page { size: letter portrait; margin: 1.5cm; }
-        .container { width: 100%; }
-        .main-table { border-collapse: collapse; width: 100%; border: 2px solid black; }
-        .main-table td { border: 1px solid black; padding: 2px 4px; vertical-align: bottom; height: 17px; }
-        .header { font-weight: bold; text-align: center; background-color: #E7E6E6; }
-        .no-border { border: none !important; }
-        .border-bottom { border-top: none; border-left: none; border-right: none; border-bottom: 1px solid black !important; }
-        .text-center { text-align: center; }
-        .text-bold { font-weight: bold; }
-        .checkbox-container { display: inline-block; margin: 0 8px; }
-        .checkbox { width: 12px; height: 12px; border: 1px solid black; display: inline-block; text-align: center; line-height: 12px; font-weight: bold; vertical-align: middle; }
-        .firma { border-top: 1px solid black; margin: 40px 20px 0 20px; padding-top: 5px; }
-        .firma-label { text-align: center; font-weight: bold; }
-        .firma-desc { text-align: center; font-size: 9pt; }
-
-        @media print {
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .no-print { display: none; }
-        }
+        body { font-family: Arial, sans-serif; font-size: 9pt; }
+        @page { size: letter portrait; margin: 1cm; }
+        .no-print { text-align: center; padding: 10px; background: #333; color:white; }
+        .main-container { border: 2px solid black; padding: 5px; }
+        .layout-table { width: 100%; border-collapse: collapse; }
+        .layout-table td { padding: 1.5px 3px; vertical-align: bottom; }
+        .header { font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; background-color: #E7E6E6; padding: 4px; }
+        .label { font-weight: bold; white-space: nowrap; padding-right: 4px; }
+        .data-field { border-bottom: 1px solid black; width: 100%; display: block; min-height: 16px; padding: 0 2px; }
+        .data-field-center { border-bottom: 1px solid black; width: 100%; display: block; text-align: center; min-height: 16px; }
+        .sub-label { font-size: 8pt; text-align: center; padding-top: 1px; }
+        .checkbox { width: 10px; height: 10px; border: 1px solid black; display: inline-block; text-align: center; line-height: 10px; font-weight: bold; vertical-align: middle; }
+        .programas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px 10px; margin-top: 4px;}
+        .programa-item { font-size: 8pt; display: flex; align-items: flex-start; }
+        .programa-item .checkbox { flex-shrink: 0; margin-top: 2px; margin-right: 4px;}
+        .firma { border-top: 1px solid black; padding-top: 5px; text-align: center; min-height: 18px; font-weight: bold; }
+        .firma-label { text-align: center; font-weight: bold; font-size: 9pt; }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
-    <div class="no-print" style="text-align:center; padding: 10px; background-color: #333; color: white;">
-        <p>Para imprimir en una sola página, usa el menú de impresión (Ctrl+P) y en "Más ajustes" -> "Escala", selecciona "Ajustar al área de impresión" o "Ajustar a la página".</p>
-        <button onclick="window.print()" style="padding: 5px 15px;">Imprimir</button>
-        <button onclick="window.close()" style="padding: 5px 15px;">Cerrar</button>
+    <div class="no-print">
+        <p>RECUERDA: En el menú de impresión (Ctrl+P), en "Más ajustes" -> "Escala", selecciona "Ajustar al área de impresión".</p>
+        <button onclick="window.print()">Imprimir</button>
+        <button onclick="window.close()">Cerrar</button>
     </div>
 
-    <div class="container">
-        <table class="main-table">
-            <tr><td colspan="12" class="header">ANEXO F "SOLICITUD - REGISTRO/AUTORIZACIÓN"</td></tr>
-            <tr><td colspan="12" class="header">I. DATOS DEL PRESTADOR E INSTITUCIÓN EDUCATIVA</td></tr>
+    <div class="main-container">
+        <div class="header" style="font-size:12pt;">ANEXO F "SOLICITUD - REGISTRO/AUTORIZACIÓN"</div>
+        <div class="header" style="margin-top: 5px;">I. DATOS DEL PRESTADOR E INSTITUCIÓN EDUCATIVA</div>
+        
+        <table class="layout-table" style="margin-top: 8px;">
             <tr>
-                <td class="no-border text-bold" colspan="2">1.- Fecha:</td>
-                <td class="border-bottom" colspan="10"><?php echo htmlspecialchars($solicitud['fecha_solicitud']); ?></td>
+                <td style="width:12%;"><span class="label">1.- Fecha:</span></td>
+                <td style="width:28%;"><span class="data-field"><?= htmlspecialchars($solicitud['fecha_solicitud']) ?></span></td>
+                <td style="width:8%;" class="label">2.- Nombre:</td>
+                <td style="width:18%;"><div class="data-field-center"><?= htmlspecialchars($solicitud['apellido_paterno']) ?></div></td>
+                <td style="width:18%;"><div class="data-field-center"><?= htmlspecialchars($solicitud['apellido_materno']) ?></div></td>
+                <td style="width:16%;"><div class="data-field-center"><?= htmlspecialchars($solicitud['nombre']) ?></div></td>
+            </tr>
+            <tr><td></td><td></td><td></td><td class="sub-label">Apellido Paterno</td><td class="sub-label">Apellido Materno</td><td class="sub-label">Nombre(s)</td></tr>
+            <tr><td colspan="6" style="padding-top: 5px;"><span class="label">3.- Domicilio:</span><span class="data-field"><?= htmlspecialchars($solicitud['domicilio']) ?></span></td></tr>
+            <tr>
+                <td colspan="2"><span class="label">4.- Teléfono Fijo:</span><span class="data-field">&nbsp;</span></td>
+                <td colspan="2"><span class="label">Teléfono Celular:</span><span class="data-field"><?= htmlspecialchars($solicitud['telefono']) ?></span></td>
+                <td><span class="label">EDAD:</span><span class="data-field-center"><?= htmlspecialchars($solicitud['edad']) ?></span></td>
+                <td><span class="label">SEXO:</span><span class="data-field-center"><?= htmlspecialchars($solicitud['sexo']) ?></span></td>
             </tr>
             <tr>
-                <td class="no-border text-bold" colspan="2">2.- Nombre:</td>
-                <td class="border-bottom text-center" colspan="3"><?php echo htmlspecialchars($solicitud['apellido_paterno']); ?></td>
-                <td class="border-bottom text-center" colspan="4"><?php echo htmlspecialchars($solicitud['apellido_materno']); ?></td>
-                <td class="border-bottom text-center" colspan="3"><?php echo htmlspecialchars($solicitud['nombre']); ?></td>
+                <td colspan="3"><span class="label">5.- Correo Electrónico:</span><span class="data-field"><?= htmlspecialchars($solicitud['correo']) ?></span></td>
+                <td colspan="3"><span class="label">6.- Carrera:</span><span class="data-field"><?= htmlspecialchars($solicitud['carrera']) ?></span></td>
             </tr>
             <tr>
-                <td class="no-border" colspan="2"></td><td class="text-center" colspan="3">Apellido Paterno</td><td class="text-center" colspan="4">Apellido Materno</td><td class="text-center" colspan="3">Nombre(s)</td>
+                <td colspan="2"><span class="label">7.- % Créditos:</span><span class="data-field-center"><?= htmlspecialchars($solicitud['porcentaje_creditos']) ?> %</span></td>
+                <td colspan="2"><span class="label">Promedio:</span><span class="data-field-center"><?= htmlspecialchars($solicitud['promedio']) ?></span></td>
+                <td colspan="2"><span class="label">8.- Facebook:</span><span class="data-field"><?= htmlspecialchars($solicitud['facebook']) ?></span></td>
             </tr>
             <tr>
-                <td class="no-border text-bold" colspan="2">3.- Domicilio:</td>
-                <td class="border-bottom" colspan="10"><?php echo htmlspecialchars($solicitud['domicilio']); ?></td>
+                <td colspan="3"><span class="label">9.- Matrícula:</span><span class="data-field"><?= htmlspecialchars($solicitud['matricula']) ?></span></td>
+                <td colspan="3"><span class="label">10.- CURP:</span><span class="data-field"><?= htmlspecialchars($solicitud['curp']) ?></span></td>
             </tr>
+        </table>
+
+        <div class="header" style="margin-top: 8px;">II. DATOS DE LA ENTIDAD RECEPTORA</div>
+
+        <table class="layout-table" style="margin-top: 8px;">
+            <tr><td colspan="6"><span class="label">11.- Nombre de la Entidad Receptora:</span><span class="data-field"><?= htmlspecialchars($solicitud['entidad_nombre']) ?></span></td></tr>
             <tr>
-                <td class="no-border text-bold" colspan="2">4.- Teléfono Celular:</td>
-                <td class="border-bottom" colspan="4"><?php echo htmlspecialchars($solicitud['telefono']); ?></td>
-                <td class="no-border text-bold">EDAD:</td>
-                <td class="border-bottom text-center"><?php echo htmlspecialchars($solicitud['edad']); ?></td>
-                <td class="no-border text-bold">SEXO:</td>
-                <td class="border-bottom text-center" colspan="3"><?php echo htmlspecialchars($solicitud['sexo']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="2">5.- Correo Electrónico:</td>
-                <td class="border-bottom" colspan="10"><?php echo htmlspecialchars($solicitud['correo']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="2">6.- Carrera:</td>
-                <td class="border-bottom" colspan="10"><?php echo htmlspecialchars($solicitud['carrera']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="4">7.- % de créditos cubiertos:</td>
-                <td class="border-bottom text-center" colspan="2"><?php echo htmlspecialchars($solicitud['porcentaje_creditos']); ?> %</td>
-                <td class="no-border text-bold">Promedio:</td>
-                <td class="border-bottom text-center"><?php echo htmlspecialchars($solicitud['promedio']); ?></td>
-                <td class="no-border text-bold" colspan="2">8.- Facebook:</td>
-                <td class="border-bottom" colspan="2"><?php echo htmlspecialchars($solicitud['facebook']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="2">9.- Matrícula:</td>
-                <td class="border-bottom" colspan="4"><?php echo htmlspecialchars($solicitud['matricula']); ?></td>
-                <td class="no-border text-bold" colspan="2">10.- CURP:</td>
-                <td class="border-bottom" colspan="4"><?php echo htmlspecialchars($solicitud['curp']); ?></td>
-            </tr>
-            <tr><td colspan="12" class="header">II. DATOS DE LA ENTIDAD RECEPTORA</td></tr>
-            <tr>
-                <td class="no-border text-bold" colspan="4">5.- Nombre de la Entidad Receptora:</td>
-                <td class="border-bottom" colspan="8"><?php echo htmlspecialchars($solicitud['entidad_nombre']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-center" colspan="12">
-                    <span class="checkbox-container">Federal <span class="checkbox"><?php echo (strcasecmp($solicitud['tipo_entidad'], 'Federal') == 0) ? 'X' : '&nbsp;'; ?></span></span>
-                    <span class="checkbox-container">Estatal <span class="checkbox"><?php echo (strcasecmp($solicitud['tipo_entidad'], 'Estatal') == 0) ? 'X' : '&nbsp;'; ?></span></span>
-                    <span class="checkbox-container">Municipal <span class="checkbox"><?php echo (strcasecmp($solicitud['tipo_entidad'], 'Municipal') == 0) ? 'X' : '&nbsp;'; ?></span></span>
-                    <span class="checkbox-container">O.N.G. <span class="checkbox"><?php echo (strcasecmp($solicitud['tipo_entidad'], 'O.N.G.') == 0) ? 'X' : '&nbsp;'; ?></span></span>
-                    <span class="checkbox-container">I.E. <span class="checkbox"><?php echo (strcasecmp($solicitud['tipo_entidad'], 'I.E.') == 0) ? 'X' : '&nbsp;'; ?></span></span>
-                    <span class="checkbox-container">I.P. <span class="checkbox"><?php echo (strcasecmp($solicitud['tipo_entidad'], 'I.P.') == 0) ? 'X' : '&nbsp;'; ?></span></span>
+                 <td class="label" style="width:18%;">12.- Tipo de Entidad:</td>
+                 <td colspan="5" style="text-align: center; padding: 4px 0;">
+                    <?php $tipos_entidad = ['Federal', 'Estatal', 'Municipal', 'O.N.G.', 'I.E.', 'I.P.'];
+                    foreach ($tipos_entidad as $tipo): ?>
+                        <span style="margin: 0 4px;"><?= $tipo ?> <span class="checkbox"><?= (strcasecmp($solicitud['tipo_entidad'], $tipo) == 0) ? 'X' : '&nbsp;' ?></span></span>
+                    <?php endforeach; ?>
                 </td>
             </tr>
+            <tr><td colspan="6"><span class="label">13.- Unidad Admva:</span><span class="data-field"><?= htmlspecialchars($solicitud['unidad_administrativa']) ?></span></td></tr>
+            <tr><td colspan="6"><span class="label">14.- Domicilio Entidad:</span><span class="data-field"><?= htmlspecialchars($solicitud['entidad_domicilio']) ?></span></td></tr>
             <tr>
-                <td class="no-border text-bold" colspan="5">6.- Unidad Administrativa Responsable:</td>
-                <td class="border-bottom" colspan="7"><?php echo htmlspecialchars($solicitud['unidad_administrativa']); ?></td>
+                <td colspan="3"><span class="label">15.- Municipio:</span><span class="data-field"><?= htmlspecialchars($solicitud['municipio']) ?></span></td>
+                <td colspan="3"><span class="label">16.- Teléfono:</span><span class="data-field"><?= htmlspecialchars($solicitud['entidad_telefono']) ?></span></td>
             </tr>
+            <tr><td colspan="6"><span class="label">17.- Funcionario responsable y cargo:</span><span class="data-field"><?= htmlspecialchars($solicitud['funcionario_responsable']) . ' - ' . htmlspecialchars($solicitud['cargo_funcionario']) ?></span></td></tr>
+            
             <tr>
-                <td class="no-border text-bold" colspan="3">7.- Domicilio de la Entidad:</td>
-                <td class="border-bottom" colspan="9"><?php echo htmlspecialchars($solicitud['entidad_domicilio']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="2">8.- Municipio:</td>
-                <td class="border-bottom" colspan="4"><?php echo htmlspecialchars($solicitud['municipio']); ?></td>
-                <td class="no-border text-bold" colspan="2">Teléfono:</td>
-                <td class="border-bottom" colspan="4"><?php echo htmlspecialchars($solicitud['entidad_telefono']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="5">9.- Funcionario responsable y cargo:</td>
-                <td class="border-bottom" colspan="7"><?php echo htmlspecialchars($solicitud['funcionario_responsable']); ?> - <?php echo htmlspecialchars($solicitud['cargo_funcionario']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="5">10.- Programa en el que participará:</td>
-                <td class="border-bottom" colspan="7"><?php echo htmlspecialchars($solicitud['programa_nombre']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="5">11.- Actividades que desarrollará:</td>
-                <td class="border-bottom" colspan="7" style="height:40px;"><?php echo htmlspecialchars($solicitud['actividades']); ?></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="2">En que horario:</td>
-                <td class="text-center" colspan="3">Lunes a Viernes</td>
-                <td class="checkbox text-center">X</td>
-                <td class="text-center" colspan="3">Sábado, Domingo, Días Festivos</td>
-                <td class="checkbox text-center">&nbsp;</td>
-                <td class="no-border" colspan="2"></td>
-            </tr>
-            <tr>
-                <td class="no-border" colspan="4" style="text-align:right;">de: <?php echo htmlspecialchars(substr($solicitud['horario_lv_inicio'], 0, 5)); ?></td>
-                <td class="no-border" colspan="2">a: <?php echo htmlspecialchars(substr($solicitud['horario_lv_fin'], 0, 5)); ?></td>
-                <td class="no-border text-center" colspan="4">de: ________ a ________</td>
-                <td class="no-border" colspan="2"></td>
-            </tr>
-            <tr>
-                <td class="no-border text-bold" colspan="3">12.- Periodo de Prestación:</td>
-                <td class="text-center no-border">del:</td>
-                <td class="border-bottom text-center" colspan="2"><?php echo htmlspecialchars($solicitud['periodo_inicio_dia']); ?></td>
-                <td class="border-bottom text-center" colspan="2"><?php echo htmlspecialchars($solicitud['periodo_inicio_mes']); ?></td>
-                <td class="border-bottom text-center" colspan="2"><?php echo htmlspecialchars($solicitud['periodo_inicio_anio']); ?></td>
-                <td class="text-center no-border">al:</td>
-                <td class="border-bottom text-center" colspan="2">...</td>
-            </tr>
-            <tr>
-                <td class="no-border" colspan="4"></td>
-                <td class="text-center" colspan="2">Día</td><td class="text-center" colspan="2">Mes</td><td class="text-center" colspan="2">Año</td>
-                <td class="no-border"></td>
-                <td class="text-center" colspan="2">...</td>
-            </tr>
-            <tr>
-                 <td class="no-border text-bold" colspan="4">13.- Horas de duración:</td>
-                 <td class="no-border" colspan="2">480 horas:</td>
-                 <td class="checkbox text-center" colspan="1">X</td>
-                 <td class="no-border" colspan="5"></td>
-            </tr>
-             <tr>
-                <td colspan="6" class="no-border text-center" style="height: 100px;">
-                    <div class="firma"><?php echo htmlspecialchars($solicitud['nombre_empresa_firma']); ?></div>
-                    <div class="firma-label">Nombre y Firma</div>
-                    <div class="firma-desc">de la empresa, organización ó institución educativa</div>
+                <td colspan="6" style="padding-top: 5px;">
+                     <div class="label">18.- Programa en el que participará el prestador</div>
+                     <div class="programas-grid">
+                        <?php $programa_seleccionado = $solicitud['programa_nombre']; ?>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Vivienda') == 0) ? 'X' : '&nbsp;' ?></span>Vivienda</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Empleo y capacitación para el trabajo') == 0) ? 'X' : '&nbsp;' ?></span>Empleo y capacitación para el trabajo</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Grupos vulnerables con capacidades diferentes, infantes y tercera edad') == 0) ? 'X' : '&nbsp;' ?></span>Grupos vulnerables con capacidades diferentes, infantes y tercera edad</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Pueblos indigenas') == 0) ? 'X' : '&nbsp;' ?></span>Pueblos indigenas</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Derechos humanos') == 0) ? 'X' : '&nbsp;' ?></span>Derechos humanos</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Infraestructura hidraulica y de saneamiento') == 0) ? 'X' : '&nbsp;' ?></span>Infraestructura hidraulica y de saneamiento</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Asistencia y seguridad social') == 0) ? 'X' : '&nbsp;' ?></span>Asistencia y seguridad social</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Medio ambiente') == 0) ? 'X' : '&nbsp;' ?></span>Medio ambiente</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Educación, arte, cultura y deporte') == 0) ? 'X' : '&nbsp;' ?></span>Educación, arte, cultura y deporte</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Alimentación y Nutrición') == 0) ? 'X' : '&nbsp;' ?></span>Alimentación y Nutrición</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Apoyo a proyectos productivos') == 0) ? 'X' : '&nbsp;' ?></span>Apoyo a proyectos productivos</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Gobierno, justicia y seguridad pública') == 0) ? 'X' : '&nbsp;' ?></span>Gobierno, justicia y seguridad pública</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Política y planeación económica y social') == 0) ? 'X' : '&nbsp;' ?></span>Política y planeación económica y social</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Comercio, abasto y almacenamiento de productos básicos') == 0) ? 'X' : '&nbsp;' ?></span>Comercio, abasto y almacenamiento de productos básicos</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Desarrollo urbano') == 0) ? 'X' : '&nbsp;' ?></span>Desarrollo urbano</div>
+                        <div class="programa-item"><span class="checkbox"><?= (strcasecmp($programa_seleccionado, 'Desarrollo Tecnológico') == 0) ? 'X' : '&nbsp;' ?></span>Desarrollo Tecnológico</div>
+                     </div>
                 </td>
-                <td colspan="6" class="no-border text-center" style="height: 100px;">
-                    <div class="firma"><?php echo htmlspecialchars($solicitud['nombre_alumno_firma']); ?></div>
+            </tr>
+    
+            <tr><td colspan="6" style="padding-top: 5px;"><span class="label">19.- Actividades que desarrollará el prestador:</span><div style="border-bottom: 1px solid black; min-height: 25px; padding: 2px;"><?= nl2br(htmlspecialchars($solicitud['actividades'])) ?></div></td></tr>
+            
+            <tr>
+                <td colspan="6" style="padding-top:8px;">
+                    <table class="layout-table">
+                        <tr>
+                            <td style="width:15%;" class="label">20.- En que horario:</td>
+                            <td style="width:18%;">Lunes a Viernes <span class="checkbox">X</span></td>
+                            <td style="width:15%;">de <span class="data-field-center" style="display:inline-block; width: 60%;"><?= substr($solicitud['horario_lv_inicio'], 0, 5) ?></span></td>
+                            <td style="width:12%;">a <span class="data-field-center" style="display:inline-block; width: 70%;"><?= substr($solicitud['horario_lv_fin'], 0, 5) ?></span></td>
+                            <td style="width:25%;">Sábado, Domingo, Días Festivos <span class="checkbox">&nbsp;</span></td>
+                            <td style="width:15%;">de ____ a ____</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="6" style="padding-top: 8px;">
+                    <table class="layout-table">
+                        <tr>
+                            <td style="width: 22%;" class="label">21.- Periodo de Prestación:</td>
+                            <td style="width: 4%;">del:</td>
+                            <td style="width: 10%;"><div class="data-field-center"><?= $solicitud['periodo_inicio_dia'] ?></div></td>
+                            <td style="width: 15%;"><div class="data-field-center"><?= $solicitud['periodo_inicio_mes'] ?></div></td>
+                            <td style="width: 10%;"><div class="data-field-center"><?= $solicitud['periodo_inicio_anio'] ?></div></td>
+                            <td style="width: 3%; text-align:center;">al:</td>
+                            <td style="width: 10%;"><div class="data-field-center"><?= $solicitud['periodo_fin_dia'] ?></div></td>
+                            <td style="width: 15%;"><div class="data-field-center"><?= $solicitud['periodo_fin_mes'] ?></div></td>
+                            <td style="width: 10%;"><div class="data-field-center"><?= $solicitud['periodo_fin_anio'] ?></div></td>
+                        </tr>
+                        <tr class="sub-label"><td></td><td></td><td>Día</td><td>Mes</td><td>Año</td><td></td><td>Día</td><td>Mes</td><td>Año</td></tr>
+                    </table>
+                </td>
+            </tr>
+            
+            <tr>
+                <td colspan="6" style="padding-top: 8px;">
+                    <span class="label">22.- Horas de duración del programa o proyecto:</span>
+                    <span style="margin: 0 8px;">480 horas:</span><span class="checkbox">X</span>
+                    <span style="margin: 0 8px;">Otras</span><span class="data-field" style="width: 150px; display:inline-block;"></span>
+                </td>
+            </tr>
+            
+            <tr style="height: 60px;"><td colspan="6"></td></tr>
+
+            <tr>
+                <td colspan="3" style="padding: 10px; vertical-align: bottom;">
+                    <div class="firma"><?= htmlspecialchars($solicitud['nombre_empresa_firma']) ?></div>
+                    <div class="firma-label">Nombre y firma</div>
+                </td>
+                <td colspan="3" style="padding: 10px; vertical-align: bottom;">
+                    <div class="firma"><?= htmlspecialchars($solicitud['nombre_alumno_firma']) ?></div>
                     <div class="firma-label">Nombre y Firma el Prestador</div>
                 </td>
             </tr>
