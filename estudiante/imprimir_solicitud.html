@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ANEXO F - SOLICITUD REGISTRO/AUTORIZACIÓN</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 0;
+            width: 210mm; /* Ancho A4 */
+        }
+
+        .container {
+            width: 100%;
+            padding: 10mm;
+            box-sizing: border-box;
+        }
+
+        .title {
+            font-size: 14pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            text-decoration: underline;
+        }
+
+        .section-title {
+            font-size: 12pt;
+            font-weight: bold;
+            margin: 15px 0 5px 0;
+            text-decoration: underline;
+        }
+
+        .form-row {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: flex-end;
+        }
+
+        .label {
+            font-weight: bold;
+            white-space: nowrap;
+            margin-right: 5px;
+        }
+
+        .field {
+            border-bottom: 1px solid #000;
+            flex-grow: 1;
+            min-height: 18px;
+            padding: 0 5px;
+        }
+
+        .field-inline {
+            display: inline-block;
+            border-bottom: 1px solid #000;
+            min-width: 50px;
+            min-height: 18px;
+            padding: 0 5px;
+            margin: 0 5px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+        }
+
+        .checkbox-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .checkbox {
+            width: 15px;
+            height: 15px;
+            border: 1px solid #000;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .checkbox.checked:after {
+            content: "X";
+            position: absolute;
+            top: -3px;
+            left: 3px;
+            font-size: 14px;
+        }
+
+        .checkbox-label {
+            font-size: 9pt;
+        }
+
+        .signature-area {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-box {
+            width: 45%;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 80%;
+            margin: 0 auto;
+            padding-top: 5px;
+        }
+
+        .no-print {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                background-color: white;
+            }
+        }
+
+        /* Estilos específicos para campos de fecha */
+        .date-field {
+            display: inline-flex;
+            align-items: center;
+        }
+        .date-separator {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Imprimir
+        </button>
+        <button onclick="window.close()" style="padding: 8px 15px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+            Cerrar
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Título del documento -->
+        <div class="title">ANEXO F "SOLICITUD - REGISTRO/AUTORIZACIÓN"</div>
+
+        <!-- Sección I: Datos del prestador -->
+        <div class="section-title">I. DATOS DEL PRESTADOR E INSTITUCIÓN EDUCATIVA</div>
+
+        <!-- Fila 1: Fecha y Nombre -->
+        <div class="form-row">
+            <div class="label">1.- Fecha:</div>
+            <div class="field" id="fecha_solicitud"></div>
+            <div style="width: 20px;"></div>
+            <div class="label">2.- Nombre:</div>
+            <div class="field" id="nombre_completo"></div>
+        </div>
+
+        <!-- Fila 2: Apellidos y Nombres -->
+        <div style="margin: 15px 0;">
+            <div style="display: flex; justify-content: space-around; text-align: center; margin-bottom: 5px;">
+                <div style="width: 30%; border: 1px solid #000; padding: 3px;">Apellido Paterno</div>
+                <div style="width: 30%; border: 1px solid #000; padding: 3px;">Apellido Materno</div>
+                <div style="width: 30%; border: 1px solid #000; padding: 3px;">Nombre(s)</div>
+            </div>
+            <div style="display: flex; justify-content: space-around; text-align: center;">
+                <div style="width: 30%; border: 1px solid #000; min-height: 20px; padding: 3px;" id="apellido_paterno"></div>
+                <div style="width: 30%; border: 1px solid #000; min-height: 20px; padding: 3px;" id="apellido_materno"></div>
+                <div style="width: 30%; border: 1px solid #000; min-height: 20px; padding: 3px;" id="nombre"></div>
+            </div>
+        </div>
+
+        <!-- Fila 3: Domicilio -->
+        <div class="form-row">
+            <div class="label">3.- Domicilio:</div>
+            <div class="field" id="domicilio"></div>
+        </div>
+
+        <!-- Fila 4: Teléfonos -->
+        <div class="form-row">
+            <div class="label">4.- Telefono Fijo:</div>
+            <div class="field" style="width: 100px;" id="telefono_fijo"></div>
+            <div style="width: 20px;"></div>
+            <div class="label">Telefono Celular:</div>
+            <div class="field" style="width: 100px;" id="telefono_celular"></div>
+            <div style="width: 20px;"></div>
+            <div class="label">EDAD:</div>
+            <div class="field" style="width: 50px;" id="edad"></div>
+            <div style="width: 20px;"></div>
+            <div class="label">SEXO:</div>
+            <div class="field" style="width: 80px;" id="sexo"></div>
+        </div>
+
+        <!-- Fila 5: Correo y Carrera -->
+        <div class="form-row">
+            <div class="label">5.- Correo Electrónico:</div>
+            <div class="field" id="correo"></div>
+        </div>
+        <div class="form-row">
+            <div class="label">6.- Carrera:</div>
+            <div class="field" id="carrera"></div>
+        </div>
+
+        <!-- Fila 6: Créditos y Promedio -->
+        <div class="form-row">
+            <div class="label">7.- Porcentaje de créditos cubiertos a la fecha:</div>
+            <div class="field" style="width: 50px;" id="porcentaje_creditos"></div>
+            <div style="width: 20px;"></div>
+            <div class="label">Promedio:</div>
+            <div class="field" style="width: 50px;" id="promedio"></div>
+            <div style="width: 20px;"></div>
+            <div class="label">8.- Facebook:</div>
+            <div class="field" id="facebook"></div>
+        </div>
+
+        <!-- Fila 7: Matrícula y CURP -->
+        <div class="form-row">
+            <div class="label">9.- Matrícula:</div>
+            <div class="field" style="width: 100px;" id="matricula"></div>
+            <div style="width: 20px;"></div>
+            <div class="label">10.- CURP:</div>
+            <div class="field" id="curp"></div>
+        </div>
+
+        <!-- Sección II: Datos de la entidad receptora -->
+        <div class="section-title">II. DATOS DE LA ENTIDAD RECEPTORA</div>
+
+        <!-- Fila 8: Entidad Receptora -->
+        <div class="form-row">
+            <div class="label">5.- Nombre de la Entidad Receptora:</div>
+            <div class="field" id="entidad_nombre"></div>
+        </div>
+
+        <!-- Fila 9: Tipo de Entidad -->
+        <div style="margin: 10px 0;">
+            <div class="checkbox-container">
+                <div class="checkbox-item">
+                    <div class="checkbox" id="tipo_federal"></div>
+                    <div class="checkbox-label">Federal</div>
+                </div>
+                <div class="checkbox-item">
+                    <div class="checkbox" id="tipo_estatal"></div>
+                    <div class="checkbox-label">Estatal</div>
+                </div>
+                <div class="checkbox-item">
+                    <div class="checkbox" id="tipo_municipal"></div>
+                    <div class="checkbox-label">Municipal</div>
+                </div>
+                <div class="checkbox-item">
+                    <div class="checkbox" id="tipo_ong"></div>
+                    <div class="checkbox-label">O N G</div>
+                </div>
+                <div class="checkbox-item">
+                    <div class="checkbox" id="tipo_ie"></div>
+                    <div class="checkbox-label">I.E.</div>
+                </div>
+                <div class="checkbox-item">
+                    <div class="checkbox" id="tipo_ip"></div>
+                    <div class="checkbox-label">I.P.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila 10: Unidad Administrativa -->
+        <div class="form-row">
+            <div class="label">6.- Unidad Administrativa Responsable:</div>
+            <div class="field" id="unidad_administrativa"></div>
+        </div>
+
+        <!-- Fila 11: Domicilio -->
+        <div class="form-row">
+            <div class="label">7.- Domicilio de la Unidad Administrativa Responsable:</div>
+            <div class="field" id="entidad_domicilio"></div>
+        </div>
+
+        <!-- Fila 12: Municipio y Teléfono -->
+        <div class="form-row">
+            <div class="label">8.- Municipio:</div>
+            <div class="field" style="width: 150px;" id="entidad_municipio"></div>
+            <div style="width: 20px;"></div>
+            <div class="label">Teléfono:</div>
+            <div class="field" style="width: 150px;" id="entidad_telefono"></div>
+        </div>
+
+        <!-- Fila 13: Funcionario responsable -->
+        <div class="form-row">
+            <div class="label">9.- Funcionario responsable del programa y cargo:</div>
+            <div class="field" style="width: 45%;" id="funcionario_responsable"></div>
+            <div class="field" style="width: 45%; margin-left: 10px;" id="cargo_funcionario"></div>
+        </div>
+
+        <!-- Fila 14: Programa -->
+        <div class="form-row">
+            <div class="label">10.- Programa en el que participará el prestador:</div>
+            <div class="field" id="programa_nombre"></div>
+        </div>
+
+        <!-- Fila 15: Actividades -->
+        <div style="margin: 15px 0;">
+            <div class="label">11.- Actividades que desarrollará el prestador:</div>
+            <div style="border: 1px solid #000; min-height: 60px; padding: 5px;" id="actividades"></div>
+        </div>
+
+        <!-- Fila 16: Horario -->
+        <div style="margin: 15px 0;">
+            <div class="label">En que horario:</div>
+            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                <div style="text-align: center; width: 30%;">Lunes a Viernes</div>
+                <div style="text-align: center; width: 30%;">Lunes a Viernes</div>
+                <div style="text-align: center; width: 30%;">Sábado, Domingo, Días Festivos</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                <div style="width: 30%; text-align: center;">
+                    de <span class="field-inline" id="horario_lv_inicio"></span> a <span class="field-inline" id="horario_lv_fin"></span>
+                </div>
+                <div style="width: 30%; text-align: center;">
+                    de <span class="field-inline"></span> a <span class="field-inline"></span>
+                </div>
+                <div style="width: 30%; text-align: center;">
+                    de <span class="field-inline"></span> a <span class="field-inline"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila 17: Período de Prestación -->
+        <div style="margin: 15px 0;">
+            <div class="label">12.- Período de Prestación:</div>
+            <div style="display: flex; align-items: center; margin-top: 5px;">
+                <span>del:</span>
+                <div class="date-field">
+                    <span class="field-inline" id="periodo_inicio_dia"></span>
+                    <span class="date-separator">/</span>
+                    <span class="field-inline" id="periodo_inicio_mes"></span>
+                    <span class="date-separator">/</span>
+                    <span class="field-inline" id="periodo_inicio_anio"></span>
+                </div>
+                <span style="margin: 0 10px;">al:</span>
+                <div class="date-field">
+                    <span class="field-inline" id="periodo_fin_dia"></span>
+                    <span class="date-separator">/</span>
+                    <span class="field-inline" id="periodo_fin_mes"></span>
+                    <span class="date-separator">/</span>
+                    <span class="field-inline" id="periodo_fin_anio"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila 18: Horas de duración -->
+        <div style="margin: 15px 0;">
+            <div class="label">13.- Horas de duración del programa o proyecto:</div>
+            <div style="display: flex; align-items: center; margin-top: 5px;">
+                <span>480 horas:</span>
+                <div class="checkbox checked" style="margin: 0 5px 0 10px;"></div>
+                <span style="margin-right: 10px;">Otras:</span>
+                <div class="field" style="width: 100px;"></div>
+            </div>
+        </div>
+
+        <!-- Firmas -->
+        <div class="signature-area">
+            <div class="signature-box">
+                <div>Entidad Receptora</div>
+                <div>Nombre y firma</div>
+                <div class="signature-line"></div>
+                <div>de la empresa, organización ó institución educativa</div>
+            </div>
+            <div class="signature-box">
+                <div>Nombre y Firma el Prestador</div>
+                <div class="signature-line"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener ID de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const solicitudId = urlParams.get('id');
+
+            if (solicitudId) {
+                fetch(`../php/estudiantephp/gestionar_solicitud.php?id=${solicitudId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Formatear fecha
+                        const formatDate = (dateStr) => {
+                            if (!dateStr) return '';
+                            const date = new Date(dateStr);
+                            const day = date.getDate().toString().padStart(2, '0');
+                            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                            const year = date.getFullYear();
+                            return `${day}/${month}/${year}`;
+                        };
+
+                        // Formatear hora
+                        const formatTime = (timeStr) => {
+                            if (!timeStr) return '';
+                            return timeStr.substring(0, 5);
+                        };
+
+                        // Separar fecha en día, mes y año
+                        const splitDate = (dateStr) => {
+                            if (!dateStr) return { day: '', month: '', year: '' };
+                            const date = new Date(dateStr);
+                            return {
+                                day: date.getDate().toString().padStart(2, '0'),
+                                month: (date.getMonth() + 1).toString().padStart(2, '0'),
+                                year: date.getFullYear().toString().substring(2)
+                            };
+                        };
+
+                        // Datos personales
+                        document.getElementById('fecha_solicitud').textContent = formatDate(data.fecha_solicitud);
+                        document.getElementById('nombre_completo').textContent = `${data.nombre} ${data.apellido_paterno} ${data.apellido_materno}`;
+                        document.getElementById('apellido_paterno').textContent = data.apellido_paterno;
+                        document.getElementById('apellido_materno').textContent = data.apellido_materno;
+                        document.getElementById('nombre').textContent = data.nombre;
+                        document.getElementById('domicilio').textContent = data.domicilio;
+                        document.getElementById('telefono_fijo').textContent = data.telefono;
+                        document.getElementById('telefono_celular').textContent = data.telefono;
+                        document.getElementById('correo').textContent = data.correo;
+                        document.getElementById('edad').textContent = data.edad;
+                        document.getElementById('sexo').textContent = data.sexo;
+                        document.getElementById('carrera').textContent = data.carrera;
+                        document.getElementById('porcentaje_creditos').textContent = data.porcentaje_creditos;
+                        document.getElementById('promedio').textContent = data.promedio;
+                        document.getElementById('facebook').textContent = data.facebook || '';
+                        document.getElementById('matricula').textContent = data.matricula;
+                        document.getElementById('curp').textContent = data.curp;
+
+                        // Datos de la entidad
+                        document.getElementById('entidad_nombre').textContent = data.entidad_nombre;
+                        
+                        // Marcar tipo de entidad
+                        const tipoEntidad = data.tipo_entidad;
+                        if (tipoEntidad === 'Federal') document.getElementById('tipo_federal').classList.add('checked');
+                        if (tipoEntidad === 'Estatal') document.getElementById('tipo_estatal').classList.add('checked');
+                        if (tipoEntidad === 'Municipal') document.getElementById('tipo_municipal').classList.add('checked');
+                        if (tipoEntidad === 'O.N.G.') document.getElementById('tipo_ong').classList.add('checked');
+                        if (tipoEntidad === 'I.E.') document.getElementById('tipo_ie').classList.add('checked');
+                        if (tipoEntidad === 'I.P.') document.getElementById('tipo_ip').classList.add('checked');
+                        
+                        document.getElementById('unidad_administrativa').textContent = data.unidad_administrativa;
+                        document.getElementById('entidad_domicilio').textContent = data.entidad_domicilio;
+                        document.getElementById('entidad_municipio').textContent = data.entidad_municipio;
+                        document.getElementById('entidad_telefono').textContent = data.entidad_telefono;
+                        document.getElementById('funcionario_responsable').textContent = data.funcionario_responsable;
+                        document.getElementById('cargo_funcionario').textContent = data.cargo_funcionario;
+                        document.getElementById('programa_nombre').textContent = data.programa_nombre;
+                        document.getElementById('actividades').textContent = data.actividades;
+
+                        // Horarios
+                        document.getElementById('horario_lv_inicio').textContent = formatTime(data.horario_lv_inicio);
+                        document.getElementById('horario_lv_fin').textContent = formatTime(data.horario_lv_fin);
+
+                        // Período
+                        const inicio = splitDate(data.periodo_inicio);
+                        const fin = splitDate(data.periodo_fin);
+                        document.getElementById('periodo_inicio_dia').textContent = inicio.day;
+                        document.getElementById('periodo_inicio_mes').textContent = inicio.month;
+                        document.getElementById('periodo_inicio_anio').textContent = inicio.year;
+                        document.getElementById('periodo_fin_dia').textContent = fin.day;
+                        document.getElementById('periodo_fin_mes').textContent = fin.month;
+                        document.getElementById('periodo_fin_anio').textContent = fin.year;
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar los datos:', error);
+                        alert('Error al cargar los datos de la solicitud.');
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
