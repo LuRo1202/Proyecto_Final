@@ -1,229 +1,119 @@
 <?php
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-header("Expires: 0");
-header('Content-Type: application/json; charset=utf-8');
-
 session_start();
+header('Content-Type: application/json');
+
 if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Acceso no autorizado']);
-    exit;
+    http_response_code(403);
+    die(json_encode(['success' => false, 'message' => 'Acceso denegado. No has iniciado sesión.']));
 }
 
-require_once '../conexion.php';
+$usuario_id_estudiante = $_SESSION['usuario_id'];
 
-$action = $_GET['action'] ?? $_POST['action'] ?? '';
+$conn = new mysqli('127.0.0.1', 'root', '', 'servicio_social');
+if ($conn->connect_error) {
+    http_response_code(500);
+    die(json_encode(['success' => false, 'message' => 'Error de conexión a la BD.']));
+}
+$conn->set_charset('utf8');
 
-try {
-    switch ($action) {
-        case 'getStudentInfo':
-            getStudentInfo($conn);
-            break;
-            
-        case 'getStudentDocuments':
-            getStudentDocuments($conn);
-            break;
-            
-        case 'uploadDocument':
-            uploadDocument($conn);
-            break;
-            
-        case 'viewDocument':
-        case 'downloadDocument':
-            handleDocumentView($conn);
-            break;
-            
-        default:
-            echo json_encode(['success' => false, 'message' => 'Acción no válida']);
-            break;
-    }
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error en el servidor: ' . $e->getMessage()]);
+$action = $_REQUEST['action'] ?? '';
+
+switch ($action) {
+    case 'getStudentInfo':
+        getStudentInfo($conn, $usuario_id_estudiante);
+        break;
+    case 'getStudentDocuments':
+        getStudentDocuments($conn);
+        break;
+    case 'uploadDocument':
+        uploadDocument($conn);
+        break;
+    default:
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Acción no válida.']);
 }
 
-function getStudentInfo($conn) {
-    $usuario_id = $_SESSION['usuario_id'];
-    
-    $query = "SELECT e.estudiante_id, e.matricula, e.nombre, e.apellido_paterno, e.apellido_materno, e.carrera, e.cuatrimestre, 
-                     e.telefono, e.horas_completadas, e.horas_requeridas, u.correo,
-                     (SELECT solicitud_id FROM solicitudes WHERE estudiante_id = e.estudiante_id ORDER BY solicitud_id DESC LIMIT 1) as solicitud_id
-              FROM estudiantes e
-              JOIN usuarios u ON e.usuario_id = u.usuario_id
-              WHERE e.usuario_id = ?";
-    
+$conn->close();
+
+function getStudentInfo($conn, $usuario_id) {
+    $query = "SELECT e.estudiante_id, e.nombre, e.apellido_paterno, s.solicitud_id FROM estudiantes e LEFT JOIN solicitudes s ON e.estudiante_id = s.estudiante_id AND s.estado IN ('pendiente', 'aprobada') WHERE e.usuario_id = ? ORDER BY s.fecha_solicitud DESC LIMIT 1";
     $stmt = $conn->prepare($query);
-    $stmt->execute([$usuario_id]);
-    
-    if ($stmt->rowCount() > 0) {
-        $student = $stmt->fetch(PDO::FETCH_ASSOC);
-        echo json_encode(['success' => true, ...$student]);
+    if (!$stmt) { die(json_encode(['success' => false, 'message' => 'Error al preparar la consulta de estudiante.'])); }
+    $stmt->bind_param("i", $usuario_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        echo json_encode(['success' => true] + $result->fetch_assoc());
     } else {
-        echo json_encode(['success' => false, 'message' => 'Estudiante no encontrado']);
+        echo json_encode(['success' => false, 'message' => 'No se encontró información del estudiante o no tienes una solicitud activa.']);
     }
+    $stmt->close();
 }
 
 function getStudentDocuments($conn) {
-    $solicitud_id = $_GET['solicitud_id'] ?? 0;
+    if (!isset($_GET['solicitud_id'])) { die(json_encode(['success' => false, 'message' => 'Falta el ID de la solicitud.'])); }
+    $solicitud_id = intval($_GET['solicitud_id']);
     
-    if ($solicitud_id == 0) {
-        echo json_encode(['error' => 'ID de solicitud no válido']);
-        return;
-    }
+    $query_requeridos = "SELECT tipo_documento_id, nombre, descripcion FROM tipos_documentos WHERE requerido = 1";
+    $result_requeridos = $conn->query($query_requeridos);
+    $documentos_requeridos = $result_requeridos->fetch_all(MYSQLI_ASSOC);
 
-    // Orden específico solicitado (excluyendo Carta de Termino - tipo_documento_id = 4)
-    $query = "SELECT * FROM tipos_documentos 
-              WHERE tipo_documento_id != 4
-              ORDER BY CASE nombre
-                WHEN 'Carta de Presentación' THEN 1
-                WHEN 'Carta de Aceptación' THEN 2
-                WHEN 'Primer Informe' THEN 3
-                WHEN 'Segundo Informe' THEN 4
-                WHEN 'Comprobante de Pago' THEN 5
-                ELSE 6
-              END";
-    $stmt = $conn->query($query);
-    $documentos_requeridos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $query_subidos = "SELECT tipo_documento_id, documento_id, nombre_archivo, ruta_archivo, estado, observaciones, fecha_subida, fecha_validacion FROM documentos_servicio WHERE solicitud_id = ?";
+    $stmt_subidos = $conn->prepare($query_subidos);
+    if (!$stmt_subidos) { die(json_encode(['success' => false, 'message' => 'Error al preparar la consulta de documentos subidos.'])); }
+    $stmt_subidos->bind_param("i", $solicitud_id);
+    $stmt_subidos->execute();
+    $result_subidos = $stmt_subidos->get_result();
+    $documentos_subidos = $result_subidos->fetch_all(MYSQLI_ASSOC);
     
-    // También excluimos documentos de tipo 4 (Carta de Termino) en los documentos subidos
-    $query = "SELECT d.*, t.nombre as nombre_documento
-              FROM documentos_servicio d
-              JOIN tipos_documentos t ON d.tipo_documento_id = t.tipo_documento_id
-              WHERE d.solicitud_id = ? AND d.tipo_documento_id != 4";
-    $stmt = $conn->prepare($query);
-    $stmt->execute([$solicitud_id]);
-    $documentos_subidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    echo json_encode([
-        'success' => true,
-        'documentos_requeridos' => $documentos_requeridos,
-        'documentos_subidos' => $documentos_subidos
-    ]);
+    echo json_encode(['success' => true, 'documentos_requeridos' => $documentos_requeridos, 'documentos_subidos' => $documentos_subidos]);
+    $stmt_subidos->close();
 }
 
 function uploadDocument($conn) {
-    $solicitud_id = $_POST['solicitud_id'] ?? 0;
-    $tipo_documento_id = $_POST['tipo_documento_id'] ?? 0;
+    if (!isset($_POST['solicitud_id'], $_POST['tipo_documento_id'], $_FILES['documento'])) {
+        die(json_encode(['success' => false, 'message' => 'Faltan datos para subir el archivo.']));
+    }
+    if ($_FILES['documento']['error'] !== UPLOAD_ERR_OK) {
+        die(json_encode(['success' => false, 'message' => 'Error al subir el archivo. Código: ' . $_FILES['documento']['error']]));
+    }
+    $solicitud_id = intval($_POST['solicitud_id']);
+    $tipo_documento_id = intval($_POST['tipo_documento_id']);
     $observaciones = $_POST['observaciones'] ?? '';
-    
-    if (!isset($_FILES['documento'])) {
-        echo json_encode(['success' => false, 'message' => 'No se recibió ningún archivo']);
-        return;
+    $nombre_original = basename($_FILES['documento']['name']);
+    $tipo_archivo = $_FILES['documento']['type'];
+    $nombre_unico = uniqid('doc_' . $solicitud_id . '_') . '.' . pathinfo($nombre_original, PATHINFO_EXTENSION);
+    $directorio_subida = '../../uploads/documentos_servicio/';
+    if (!is_dir($directorio_subida)) { mkdir($directorio_subida, 0777, true); }
+    $ruta_archivo_servidor = $directorio_subida . $nombre_unico;
+    if (!move_uploaded_file($_FILES['documento']['tmp_name'], $ruta_archivo_servidor)) {
+        die(json_encode(['success' => false, 'message' => 'No se pudo guardar el archivo en el servidor.']));
     }
-    
-    $file = $_FILES['documento'];
-    $file_name = $file['name'];
-    $file_tmp = $file['tmp_name'];
-    $file_size = $file['size'];
-    $file_type = $file['type'];
-    
-    $allowed_types = ['application/pdf', 'application/msword', 
-                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                     'image/jpeg', 'image/png'];
-    
-    if (!in_array($file_type, $allowed_types)) {
-        echo json_encode(['success' => false, 'message' => 'Tipo de archivo no permitido']);
-        return;
-    }
-    
-    if ($file_size > 5 * 1024 * 1024) {
-        echo json_encode(['success' => false, 'message' => 'El archivo excede el tamaño máximo permitido (5MB)']);
-        return;
-    }
-    
-    $upload_dir = '../../uploads/documentos_servicio/';
-    if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
-    }
-    
-    $file_ext = pathinfo($file_name, PATHINFO_EXTENSION);
-    $file_new_name = 'doc_' . $solicitud_id . '_' . uniqid() . '.' . $file_ext;
-    $file_destination = $upload_dir . $file_new_name;
-    
-    if (move_uploaded_file($file_tmp, $file_destination)) {
-        // Verificar si ya existe un documento de este tipo
-        $query = "SELECT documento_id FROM documentos_servicio 
-                  WHERE solicitud_id = ? AND tipo_documento_id = ?";
-        $stmt = $conn->prepare($query);
-        $stmt->execute([$solicitud_id, $tipo_documento_id]);
-        
-        if ($stmt->rowCount() > 0) {
-            $doc = $stmt->fetch(PDO::FETCH_ASSOC);
-            $documento_id = $doc['documento_id'];
-            
-            // Eliminar el archivo anterior si existe
-            $query = "SELECT ruta_archivo FROM documentos_servicio WHERE documento_id = ?";
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$documento_id]);
-            $old_file = $stmt->fetchColumn();
-            
-            if (file_exists($old_file)) {
-                unlink($old_file);
-            }
-            
-            // Actualizar el registro existente
-            $query = "UPDATE documentos_servicio 
-                      SET nombre_archivo = ?, ruta_archivo = ?, 
-                          tipo_archivo = ?, fecha_subida = NOW(), 
-                          estado = 'pendiente', observaciones = ?,
-                          validado_por = NULL, fecha_validacion = NULL
-                      WHERE documento_id = ?";
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$file_name, $file_destination, $file_type, $observaciones, $documento_id]);
-        } else {
-            // Insertar nuevo registro
-            $query = "INSERT INTO documentos_servicio 
-                      (solicitud_id, tipo_documento_id, nombre_archivo, ruta_archivo, 
-                       tipo_archivo, fecha_subida, estado, observaciones)
-                      VALUES (?, ?, ?, ?, ?, NOW(), 'pendiente', ?)";
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$solicitud_id, $tipo_documento_id, $file_name, $file_destination, $file_type, $observaciones]);
-        }
-        
-        echo json_encode(['success' => true, 'message' => 'Documento subido correctamente']);
+    $ruta_archivo_bd = '../../uploads/documentos_servicio/' . $nombre_unico;
+    $query_check = "SELECT documento_id FROM documentos_servicio WHERE solicitud_id = ? AND tipo_documento_id = ?";
+    $stmt_check = $conn->prepare($query_check);
+    $stmt_check->bind_param("ii", $solicitud_id, $tipo_documento_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    if ($result_check->num_rows > 0) {
+        $query_update = "UPDATE documentos_servicio SET nombre_archivo = ?, ruta_archivo = ?, tipo_archivo = ?, fecha_subida = NOW(), estado = 'pendiente', observaciones = ? WHERE solicitud_id = ? AND tipo_documento_id = ?";
+        $stmt_update = $conn->prepare($query_update);
+        $stmt_update->bind_param("sssisi", $nombre_original, $ruta_archivo_bd, $tipo_archivo, $observaciones, $solicitud_id, $tipo_documento_id);
+        $success = $stmt_update->execute();
+        $stmt_update->close();
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error al subir el archivo']);
+        $query_insert = "INSERT INTO documentos_servicio (solicitud_id, tipo_documento_id, nombre_archivo, ruta_archivo, tipo_archivo, estado, observaciones) VALUES (?, ?, ?, ?, ?, 'pendiente', ?)";
+        $stmt_insert = $conn->prepare($query_insert);
+        $stmt_insert->bind_param("iissss", $solicitud_id, $tipo_documento_id, $nombre_original, $ruta_archivo_bd, $tipo_archivo, $observaciones);
+        $success = $stmt_insert->execute();
+        $stmt_insert->close();
     }
-}
-
-function handleDocumentView($conn) {
-    $documento_id = $_GET['documento_id'] ?? 0;
-    $action = $_GET['action'] ?? $_POST['action'] ?? '';
-    
-    $query = "SELECT * FROM documentos_servicio WHERE documento_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->execute([$documento_id]);
-    
-    if ($stmt->rowCount() === 0) {
-        header('HTTP/1.0 404 Not Found');
-        echo 'Documento no encontrado';
-        exit;
-    }
-    
-    $documento = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!file_exists($documento['ruta_archivo'])) {
-        header('HTTP/1.0 404 Not Found');
-        echo 'Archivo no encontrado en el servidor';
-        exit;
-    }
-    
-    $file_path = $documento['ruta_archivo'];
-    $file_name = $documento['nombre_archivo'];
-    $file_type = $documento['tipo_archivo'];
-    
-    if ($action === 'downloadDocument') {
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . basename($file_name) . '"');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($file_path));
-        readfile($file_path);
+    $stmt_check->close(); 
+    if ($success) {
+        echo json_encode(['success' => true, 'message' => 'Archivo subido correctamente.']);
     } else {
-        header('Content-Type: ' . $file_type);
-        readfile($file_path);
+        unlink($ruta_archivo_servidor);
+        echo json_encode(['success' => false, 'message' => 'Error al guardar la información en la base de datos.']);
     }
-    exit;
 }
 ?>

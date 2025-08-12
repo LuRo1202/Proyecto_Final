@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head> 
     <meta charset="UTF-8">
     <title>ANEXO F - SOLICITUD REGISTRO/AUTORIZACIÓN</title>
     <style>
@@ -14,374 +14,362 @@
             font-size: 10pt;
             margin: 0;
             padding: 0;
-            width: 210mm; /* Ancho A4 */
         }
 
-        .container {
+        .page {
             width: 100%;
-            padding: 10mm;
-            box-sizing: border-box;
+            border-collapse: collapse;
         }
 
-        .title {
-            font-size: 14pt;
-            font-weight: bold;
+        .page td {
+            padding: 3px 5px;
+            vertical-align: top;
+            height: 20px;
+        }
+
+        .border-all {
+            border: 1px solid black;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid black;
+        }
+
+        .border-right {
+            border-right: 1px solid black;
+        }
+
+        .text-center {
             text-align: center;
-            margin-bottom: 10px;
-            text-decoration: underline;
+        }
+
+        .text-right {
+            text-align: right;
         }
 
         .section-title {
+            font-weight: bold;
             font-size: 12pt;
-            font-weight: bold;
-            margin: 15px 0 5px 0;
-            text-decoration: underline;
-        }
-
-        .form-row {
-            display: flex;
-            margin-bottom: 8px;
-            align-items: flex-end;
-        }
-
-        .label {
-            font-weight: bold;
-            white-space: nowrap;
-            margin-right: 5px;
-        }
-
-        .field {
-            border-bottom: 1px solid #000;
-            flex-grow: 1;
-            min-height: 18px;
-            padding: 0 5px;
-        }
-
-        .field-inline {
-            display: inline-block;
-            border-bottom: 1px solid #000;
-            min-width: 50px;
-            min-height: 18px;
-            padding: 0 5px;
-            margin: 0 5px;
-        }
-
-        .checkbox-container {
-            display: flex;
-            justify-content: space-around;
-            margin: 10px 0;
-        }
-
-        .checkbox-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding-top: 10px;
         }
 
         .checkbox {
-            width: 15px;
-            height: 15px;
-            border: 1px solid #000;
-            margin-bottom: 5px;
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid black;
             position: relative;
+            margin: 0 2px;
         }
 
         .checkbox.checked:after {
             content: "X";
             position: absolute;
             top: -3px;
-            left: 3px;
-            font-size: 14px;
-        }
-
-        .checkbox-label {
-            font-size: 9pt;
-        }
-
-        .signature-area {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .signature-box {
-            width: 45%;
-            text-align: center;
-        }
-
-        .signature-line {
-            border-top: 1px solid #000;
-            width: 80%;
-            margin: 0 auto;
-            padding-top: 5px;
+            left: 2px;
+            font-size: 12px;
         }
 
         .no-print {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
+            display: none;
         }
 
-        @media print {
-            .no-print {
-                display: none;
-            }
-            body {
-                background-color: white;
-            }
+        .signature-line {
+            border-top: 1px solid black;
+            width: 60%;
+            margin: 25px auto 5px;
         }
 
-        /* Estilos específicos para campos de fecha */
-        .date-field {
-            display: inline-flex;
-            align-items: center;
+        /* Estilos específicos para la tabla de formulario */
+        .page td {
+            padding: 5px;
         }
-        .date-separator {
-            margin: 0 5px;
+
+        .title-row {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: center;
         }
+
+        .header-row {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .content-row {
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .sub-content-row {
+            font-size: 10px;
+            text-align: left;
+        }
+
     </style>
 </head>
 <body>
-    <div class="no-print">
-        <button onclick="window.print()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            Imprimir
-        </button>
-        <button onclick="window.close()" style="padding: 8px 15px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
-            Cerrar
-        </button>
+    <div class="no-print" style="text-align: center; padding: 10px;">
+        <button onclick="window.print()" style="padding: 5px 15px; margin: 5px;">Imprimir</button>
+        <button onclick="window.close()" style="padding: 5px 15px; margin: 5px;">Cerrar</button>
     </div>
 
-    <div class="container">
-        <!-- Título del documento -->
-        <div class="title">ANEXO F "SOLICITUD - REGISTRO/AUTORIZACIÓN"</div>
+    <table class="page" cellspacing="0" cellpadding="0">
+        <!-- Título -->
+        <tr>
+            <td colspan="30" class="text-center section-title">ANEXO F "SOLICITUD - REGISTRO/AUTORIZACIÓN"</td>
+        </tr>
 
-        <!-- Sección I: Datos del prestador -->
-        <div class="section-title">I. DATOS DEL PRESTADOR E INSTITUCIÓN EDUCATIVA</div>
+        <!-- Sección I -->
+        <tr class="title-row">
+            <td colspan="30" class="section-title">I. DATOS DEL PRESTADOR E INSTITUCIÓN EDUCATIVA</td>
+        </tr>
 
         <!-- Fila 1: Fecha y Nombre -->
-        <div class="form-row">
-            <div class="label">1.- Fecha:</div>
-            <div class="field" id="fecha_solicitud"></div>
-            <div style="width: 20px;"></div>
-            <div class="label">2.- Nombre:</div>
-            <div class="field" id="nombre_completo"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">1.- Fecha:</td>
+            <td colspan="5" class="border-bottom" id="fecha_solicitud"></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">2.- Nombre:</td>
+            <td colspan="15" class="border-bottom" id="nombre_completo"></td>
+        </tr>
 
         <!-- Fila 2: Apellidos y Nombres -->
-        <div style="margin: 15px 0;">
-            <div style="display: flex; justify-content: space-around; text-align: center; margin-bottom: 5px;">
-                <div style="width: 30%; border: 1px solid #000; padding: 3px;">Apellido Paterno</div>
-                <div style="width: 30%; border: 1px solid #000; padding: 3px;">Apellido Materno</div>
-                <div style="width: 30%; border: 1px solid #000; padding: 3px;">Nombre(s)</div>
-            </div>
-            <div style="display: flex; justify-content: space-around; text-align: center;">
-                <div style="width: 30%; border: 1px solid #000; min-height: 20px; padding: 3px;" id="apellido_paterno"></div>
-                <div style="width: 30%; border: 1px solid #000; min-height: 20px; padding: 3px;" id="apellido_materno"></div>
-                <div style="width: 30%; border: 1px solid #000; min-height: 20px; padding: 3px;" id="nombre"></div>
-            </div>
-        </div>
+        <tr>
+            <td colspan="7"></td>
+            <td colspan="7" class="text-center border-all">Apellido Paterno</td>
+            <td colspan="7" class="text-center border-all">Apellido Materno</td>
+            <td colspan="7" class="text-center border-all">Nombre(s)</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td colspan="7"></td>
+            <td colspan="7" class="border-all text-center" id="apellido_paterno"></td>
+            <td colspan="7" class="border-all text-center" id="apellido_materno"></td>
+            <td colspan="7" class="border-all text-center" id="nombre"></td>
+            <td colspan="2"></td>
+        </tr>
 
         <!-- Fila 3: Domicilio -->
-        <div class="form-row">
-            <div class="label">3.- Domicilio:</div>
-            <div class="field" id="domicilio"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">3.- Domicilio:</td>
+            <td colspan="25" class="border-bottom" id="domicilio"></td>
+        </tr>
 
         <!-- Fila 4: Teléfonos -->
-        <div class="form-row">
-            <div class="label">4.- Telefono Fijo:</div>
-            <div class="field" style="width: 100px;" id="telefono_fijo"></div>
-            <div style="width: 20px;"></div>
-            <div class="label">Telefono Celular:</div>
-            <div class="field" style="width: 100px;" id="telefono_celular"></div>
-            <div style="width: 20px;"></div>
-            <div class="label">EDAD:</div>
-            <div class="field" style="width: 50px;" id="edad"></div>
-            <div style="width: 20px;"></div>
-            <div class="label">SEXO:</div>
-            <div class="field" style="width: 80px;" id="sexo"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">4.- Telefono Fijo:</td>
+            <td colspan="5" class="border-bottom" id="telefono_fijo"></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">Telefono Celular:</td>
+            <td colspan="5" class="border-bottom" id="telefono_celular"></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">EDAD:</td>
+            <td colspan="3" class="border-bottom" id="edad"></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">SEXO:</td>
+            <td colspan="3" class="border-bottom" id="sexo"></td>
+        </tr>
 
         <!-- Fila 5: Correo y Carrera -->
-        <div class="form-row">
-            <div class="label">5.- Correo Electrónico:</div>
-            <div class="field" id="correo"></div>
-        </div>
-        <div class="form-row">
-            <div class="label">6.- Carrera:</div>
-            <div class="field" id="carrera"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">5.- Correo Electrónico:</td>
+            <td colspan="12" class="border-bottom" id="correo"></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">6.- Carrera:</td>
+            <td colspan="8" class="border-bottom" id="carrera"></td>
+        </tr>
 
         <!-- Fila 6: Créditos y Promedio -->
-        <div class="form-row">
-            <div class="label">7.- Porcentaje de créditos cubiertos a la fecha:</div>
-            <div class="field" style="width: 50px;" id="porcentaje_creditos"></div>
-            <div style="width: 20px;"></div>
-            <div class="label">Promedio:</div>
-            <div class="field" style="width: 50px;" id="promedio"></div>
-            <div style="width: 20px;"></div>
-            <div class="label">8.- Facebook:</div>
-            <div class="field" id="facebook"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="8" class="content-row">7.- Porcentaje de créditos cubiertos a la fecha:</td>
+            <td colspan="4" class="border-bottom" id="porcentaje_creditos"></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">Promedio:</td>
+            <td colspan="4" class="border-bottom" id="promedio"></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">8.- Facebook:</td>
+            <td colspan="4" class="border-bottom" id="facebook"></td>
+        </tr>
 
         <!-- Fila 7: Matrícula y CURP -->
-        <div class="form-row">
-            <div class="label">9.- Matrícula:</div>
-            <div class="field" style="width: 100px;" id="matricula"></div>
-            <div style="width: 20px;"></div>
-            <div class="label">10.- CURP:</div>
-            <div class="field" id="curp"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">9.- Matrícula:</td>
+            <td colspan="5" class="border-bottom" id="matricula"></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">10.- CURP:</td>
+            <td colspan="15" class="border-bottom" id="curp"></td>
+        </tr>
 
-        <!-- Sección II: Datos de la entidad receptora -->
-        <div class="section-title">II. DATOS DE LA ENTIDAD RECEPTORA</div>
+        <!-- Sección II -->
+        <tr class="title-row">
+            <td colspan="30" class="section-title">II. DATOS DE LA ENTIDAD RECEPTORA</td>
+        </tr>
 
         <!-- Fila 8: Entidad Receptora -->
-        <div class="form-row">
-            <div class="label">5.- Nombre de la Entidad Receptora:</div>
-            <div class="field" id="entidad_nombre"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="6" class="content-row">5.- Nombre de la Entidad Receptora:</td>
+            <td colspan="22" class="border-bottom" id="entidad_nombre"></td>
+        </tr>
 
         <!-- Fila 9: Tipo de Entidad -->
-        <div style="margin: 10px 0;">
-            <div class="checkbox-container">
-                <div class="checkbox-item">
-                    <div class="checkbox" id="tipo_federal"></div>
-                    <div class="checkbox-label">Federal</div>
-                </div>
-                <div class="checkbox-item">
-                    <div class="checkbox" id="tipo_estatal"></div>
-                    <div class="checkbox-label">Estatal</div>
-                </div>
-                <div class="checkbox-item">
-                    <div class="checkbox" id="tipo_municipal"></div>
-                    <div class="checkbox-label">Municipal</div>
-                </div>
-                <div class="checkbox-item">
-                    <div class="checkbox" id="tipo_ong"></div>
-                    <div class="checkbox-label">O N G</div>
-                </div>
-                <div class="checkbox-item">
-                    <div class="checkbox" id="tipo_ie"></div>
-                    <div class="checkbox-label">I.E.</div>
-                </div>
-                <div class="checkbox-item">
-                    <div class="checkbox" id="tipo_ip"></div>
-                    <div class="checkbox-label">I.P.</div>
-                </div>
-            </div>
-        </div>
+        <tr>
+            <td colspan="8"></td>
+            <td colspan="3" class="text-center border-all">Federal</td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center border-all">Estatal</td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center border-all">Municipal</td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center border-all">O N G</td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center border-all">I.E.</td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center border-all">I.P.</td>
+        </tr>
 
-        <!-- Fila 10: Unidad Administrativa -->
-        <div class="form-row">
-            <div class="label">6.- Unidad Administrativa Responsable:</div>
-            <div class="field" id="unidad_administrativa"></div>
-        </div>
+        <!-- Marcar tipo de entidad seleccionado -->
+        <tr>
+            <td colspan="8"></td>
+            <td colspan="3" class="text-center">
+                <span id="tipo_federal" class="checkbox"></span>
+            </td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center">
+                <span id="tipo_estatal" class="checkbox"></span>
+            </td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center">
+                <span id="tipo_municipal" class="checkbox"></span>
+            </td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center">
+                <span id="tipo_ong" class="checkbox"></span>
+            </td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center">
+                <span id="tipo_ie" class="checkbox"></span>
+            </td>
+            <td colspan="1"></td>
+            <td colspan="3" class="text-center">
+                <span id="tipo_ip" class="checkbox"></span>
+            </td>
+        </tr>
 
-        <!-- Fila 11: Domicilio -->
-        <div class="form-row">
-            <div class="label">7.- Domicilio de la Unidad Administrativa Responsable:</div>
-            <div class="field" id="entidad_domicilio"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="6" class="content-row">6.- Unidad Administrativa Responsable:</td>
+            <td colspan="22" class="border-bottom" id="unidad_administrativa"></td>
+        </tr>
 
-        <!-- Fila 12: Municipio y Teléfono -->
-        <div class="form-row">
-            <div class="label">8.- Municipio:</div>
-            <div class="field" style="width: 150px;" id="entidad_municipio"></div>
-            <div style="width: 20px;"></div>
-            <div class="label">Teléfono:</div>
-            <div class="field" style="width: 150px;" id="entidad_telefono"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="6" class="content-row">7.- Domicilio de la Unidad Administrativa Responsable:</td>
+            <td colspan="22" class="border-bottom" id="entidad_domicilio"></td>
+        </tr>
 
-        <!-- Fila 13: Funcionario responsable -->
-        <div class="form-row">
-            <div class="label">9.- Funcionario responsable del programa y cargo:</div>
-            <div class="field" style="width: 45%;" id="funcionario_responsable"></div>
-            <div class="field" style="width: 45%; margin-left: 10px;" id="cargo_funcionario"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">8.- Municipio:</td>
+            <td colspan="7" class="border-bottom" id="entidad_municipio"></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="content-row">Teléfono:</td>
+            <td colspan="7" class="border-bottom" id="entidad_telefono"></td>
+            <td colspan="6"></td>
+        </tr>
 
-        <!-- Fila 14: Programa -->
-        <div class="form-row">
-            <div class="label">10.- Programa en el que participará el prestador:</div>
-            <div class="field" id="programa_nombre"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="6" class="content-row">9.- Funcionario responsable del programa y cargo:</td>
+            <td colspan="10" class="border-bottom" id="funcionario_responsable"></td>
+            <td colspan="10" class="border-bottom" id="cargo_funcionario"></td>
+            <td colspan="2"></td>
+        </tr>
 
-        <!-- Fila 15: Actividades -->
-        <div style="margin: 15px 0;">
-            <div class="label">11.- Actividades que desarrollará el prestador:</div>
-            <div style="border: 1px solid #000; min-height: 60px; padding: 5px;" id="actividades"></div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="6" class="content-row">10.- Programa en el que participará el prestador:</td>
+            <td colspan="22" class="border-bottom" id="programa_nombre"></td>
+        </tr>
 
-        <!-- Fila 16: Horario -->
-        <div style="margin: 15px 0;">
-            <div class="label">En que horario:</div>
-            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                <div style="text-align: center; width: 30%;">Lunes a Viernes</div>
-                <div style="text-align: center; width: 30%;">Lunes a Viernes</div>
-                <div style="text-align: center; width: 30%;">Sábado, Domingo, Días Festivos</div>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                <div style="width: 30%; text-align: center;">
-                    de <span class="field-inline" id="horario_lv_inicio"></span> a <span class="field-inline" id="horario_lv_fin"></span>
-                </div>
-                <div style="width: 30%; text-align: center;">
-                    de <span class="field-inline"></span> a <span class="field-inline"></span>
-                </div>
-                <div style="width: 30%; text-align: center;">
-                    de <span class="field-inline"></span> a <span class="field-inline"></span>
-                </div>
-            </div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="6" class="content-row">11.- Actividades que desarrollará el prestador:</td>
+            <td colspan="22" class="border-bottom" id="actividades" style="height: 60px;"></td>
+        </tr>
 
-        <!-- Fila 17: Período de Prestación -->
-        <div style="margin: 15px 0;">
-            <div class="label">12.- Período de Prestación:</div>
-            <div style="display: flex; align-items: center; margin-top: 5px;">
-                <span>del:</span>
-                <div class="date-field">
-                    <span class="field-inline" id="periodo_inicio_dia"></span>
-                    <span class="date-separator">/</span>
-                    <span class="field-inline" id="periodo_inicio_mes"></span>
-                    <span class="date-separator">/</span>
-                    <span class="field-inline" id="periodo_inicio_anio"></span>
-                </div>
-                <span style="margin: 0 10px;">al:</span>
-                <div class="date-field">
-                    <span class="field-inline" id="periodo_fin_dia"></span>
-                    <span class="date-separator">/</span>
-                    <span class="field-inline" id="periodo_fin_mes"></span>
-                    <span class="date-separator">/</span>
-                    <span class="field-inline" id="periodo_fin_anio"></span>
-                </div>
-            </div>
-        </div>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="6" class="content-row">En que horario:</td>
+            <td colspan="7" class="text-center">Lunes a Viernes</td>
+            <td colspan="7" class="text-center">Lunes a Viernes</td>
+            <td colspan="7" class="text-center">Sábado, Domingo, Días Festivos</td>
+            <td colspan="1"></td>
+        </tr>
 
-        <!-- Fila 18: Horas de duración -->
-        <div style="margin: 15px 0;">
-            <div class="label">13.- Horas de duración del programa o proyecto:</div>
-            <div style="display: flex; align-items: center; margin-top: 5px;">
-                <span>480 horas:</span>
-                <div class="checkbox checked" style="margin: 0 5px 0 10px;"></div>
-                <span style="margin-right: 10px;">Otras:</span>
-                <div class="field" style="width: 100px;"></div>
-            </div>
-        </div>
+        <tr>
+            <td colspan="8"></td>
+            <td colspan="2">de</td>
+            <td colspan="3" class="border-bottom" id="horario_lv_inicio"></td>
+            <td colspan="2">a</td>
+            <td colspan="3" class="border-bottom" id="horario_lv_fin"></td>
+            <td colspan="2">de</td>
+            <td colspan="3" class="border-bottom"></td>
+            <td colspan="2">a</td>
+            <td colspan="3" class="border-bottom"></td>
+            <td colspan="1"></td>
+        </tr>
 
-        <!-- Firmas -->
-        <div class="signature-area">
-            <div class="signature-box">
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="6" class="content-row">12.- Período de Prestación:</td>
+            <td colspan="3">del:</td>
+            <td colspan="2" class="border-bottom text-center" id="periodo_inicio_dia"></td>
+            <td colspan="1"></td>
+            <td colspan="2" class="border-bottom text-center" id="periodo_inicio_mes"></td>
+            <td colspan="1"></td>
+            <td colspan="2" class="border-bottom text-center" id="periodo_inicio_anio"></td>
+            <td colspan="3">al:</td>
+            <td colspan="2" class="border-bottom text-center" id="periodo_fin_dia"></td>
+            <td colspan="1"></td>
+            <td colspan="2" class="border-bottom text-center" id="periodo_fin_mes"></td>
+            <td colspan="1"></td>
+            <td colspan="2" class="border-bottom text-center" id="periodo_fin_anio"></td>
+            <td colspan="1"></td>
+        </tr>
+
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="6" class="content-row">13.- Horas de duración del programa o proyecto:</td>
+            <td colspan="4">480 horas:</td>
+            <td colspan="1"><span id="horas_480" class="checkbox checked"></span></td>
+            <td colspan="3">Otras:</td>
+            <td colspan="8" class="border-bottom"></td>
+            <td colspan="6"></td>
+        </tr>
+
+        <tr>
+            <td colspan="14" class="text-center" style="padding-top: 30px;">
                 <div>Entidad Receptora</div>
                 <div>Nombre y firma</div>
                 <div class="signature-line"></div>
                 <div>de la empresa, organización ó institución educativa</div>
-            </div>
-            <div class="signature-box">
+            </td>
+            <td colspan="2"></td>
+            <td colspan="14" class="text-center" style="padding-top: 30px;">
                 <div>Nombre y Firma el Prestador</div>
                 <div class="signature-line"></div>
-            </div>
-        </div>
-    </div>
+            </td>
+        </tr>
+    </table>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -414,8 +402,8 @@
                             if (!dateStr) return { day: '', month: '', year: '' };
                             const date = new Date(dateStr);
                             return {
-                                day: date.getDate().toString().padStart(2, '0'),
-                                month: (date.getMonth() + 1).toString().padStart(2, '0'),
+                                day: date.getDate().toString(),
+                                month: (date.getMonth() + 1).toString(),
                                 year: date.getFullYear().toString().substring(2)
                             };
                         };

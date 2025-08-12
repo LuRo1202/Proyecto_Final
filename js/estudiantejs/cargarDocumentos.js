@@ -1,15 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Variables globales
     let currentStudentId = null;
     let currentSolicitudId = null;
     let documentosRequeridos = [];
     let documentosSubidos = [];
+    const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+    const viewDocumentModal = new bootstrap.Modal(document.getElementById('viewDocumentModal'));
     
-    // Verificamos que existan los modales antes de crearlos
-    const uploadModalElement = document.getElementById('uploadModal');
-    const viewDocumentModalElement = document.getElementById('viewDocumentModal');
-    const uploadModal = uploadModalElement ? new bootstrap.Modal(uploadModalElement) : null;
-    const viewDocumentModal = viewDocumentModalElement ? new bootstrap.Modal(viewDocumentModalElement) : null;
-    
+    // Inicializar la aplicación
     initApp();
     
     function initApp() {
@@ -17,44 +15,31 @@ document.addEventListener('DOMContentLoaded', function() {
         setupEventListeners();
     }
     
-    function setupEventListeners() {
+    function setupEventListeners() { 
+        // Drag and drop para archivos
         const dropArea = document.getElementById('dropArea');
         const fileInput = document.getElementById('documentFile');
-        const uploadBtn = document.getElementById('btnUploadDocument');
-        const refreshBtn = document.getElementById('btnRefreshDocuments'); // Obtenemos el nuevo botón
-
-        // --- EVENTO PARA EL NUEVO BOTÓN DE ACTUALIZAR ---
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', function() {
-                // Usamos la función de alerta existente en esta página
-                showAlert('Actualizando lista de documentos...', 'info');
-                // Volvemos a llamar a la función que carga los documentos
-                loadStudentDocuments();
-            });
-        }
         
-        if (dropArea && fileInput) {
-            dropArea.addEventListener('click', () => fileInput.click());
-            fileInput.addEventListener('change', handleFileSelect);
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            dropArea.addEventListener('drop', handleDrop, false);
-        }
+        dropArea.addEventListener('click', () => fileInput.click());
         
-        if (uploadBtn) {
-            uploadBtn.addEventListener('click', uploadDocument);
-        }
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        // Botón para subir documento
+        document.getElementById('btnUploadDocument').addEventListener('click', uploadDocument);
     }
     
     function preventDefaults(e) {
@@ -63,17 +48,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function highlight() {
-        const dropArea = document.getElementById('dropArea');
-        if (dropArea) {
-            dropArea.classList.add('bg-primary', 'bg-opacity-10');
-        }
+        document.getElementById('dropArea').classList.add('bg-primary', 'bg-opacity-10');
     }
     
     function unhighlight() {
-        const dropArea = document.getElementById('dropArea');
-        if (dropArea) {
-            dropArea.classList.remove('bg-primary', 'bg-opacity-10');
-        }
+        document.getElementById('dropArea').classList.remove('bg-primary', 'bg-opacity-10');
     }
     
     function handleDrop(e) {
@@ -92,18 +71,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = files[0];
             const fileInfo = document.getElementById('fileInfo');
             
-            if (!fileInfo) return;
-            
+            // Validar tipo de archivo
             const validTypes = ['application/pdf', 'application/msword', 
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                'image/jpeg', 'image/png'];
+                               'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                               'image/jpeg', 'image/png'];
             
             if (!validTypes.includes(file.type)) {
                 showAlert('Solo se permiten archivos PDF, Word o imágenes (JPG/PNG)', 'danger');
                 return;
             }
             
-            if (file.size > 5 * 1024 * 1024) { // Límite de 5MB
+            // Validar tamaño (máximo 5MB)
+            if (file.size > 5 * 1024 * 1024) {
                 showAlert('El archivo no debe exceder los 5MB', 'danger');
                 return;
             }
@@ -121,17 +100,16 @@ document.addEventListener('DOMContentLoaded', function() {
             credentials: 'include'
         })
         .then(response => {
-            if (!response.ok) throw new Error('Error en la respuesta del servidor');
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
             return response.json();
         })
         .then(data => {
             if (data.success) {
                 currentStudentId = data.estudiante_id;
                 currentSolicitudId = data.solicitud_id;
-                const nombreUsuario = document.getElementById('nombreUsuarioText');
-                if (nombreUsuario) {
-                    nombreUsuario.textContent = `${data.nombre} ${data.apellido_paterno || ''} ${data.apellido_materno || ''}`.trim();
-                }
+                document.getElementById('nombreUsuarioText').textContent = `${data.nombre} ${data.apellido_paterno}`;
                 loadStudentDocuments();
             } else {
                 showAlert(data.message || 'Error al cargar información del estudiante', 'danger');
@@ -144,49 +122,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadStudentDocuments() {
-        const loadingElement = document.getElementById('loadingDocuments');
-        const documentosContainer = document.getElementById('documentosContainer');
-        
         if (!currentSolicitudId) {
             showAlert('No tienes una solicitud de servicio social activa', 'warning');
-            if (loadingElement) loadingElement.style.display = 'none';
-            documentosContainer.innerHTML = `<div class="col-12 text-center py-4"><p>No se encontró una solicitud activa.</p></div>`;
             return;
         }
         
-        // Muestra el spinner de carga al iniciar la recarga
-        if (loadingElement) loadingElement.style.display = 'block';
-        if (documentosContainer) documentosContainer.innerHTML = '';
-
-
         fetch(`../php/estudiantephp/documentos.php?action=getStudentDocuments&solicitud_id=${currentSolicitudId}`, {
             credentials: 'include'
         })
         .then(response => {
-            if (!response.ok) throw new Error('Error en la respuesta del servidor');
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
             return response.json();
         })
         .then(data => {
             if (data.success) {
-                documentosRequeridos = data.documentos_requeridos.filter(doc => doc.tipo_documento_id != 4);
-                documentosSubidos = data.documentos_subidos.filter(doc => doc.tipo_documento_id != 4);
+                documentosRequeridos = data.documentos_requeridos;
+                documentosSubidos = data.documentos_subidos;
                 renderDocuments();
             } else {
                 showAlert(data.message || 'Error al cargar documentos', 'danger');
             }
-            if (loadingElement) loadingElement.style.display = 'none';
+            const loadingDocuments = document.getElementById('loadingDocuments');
+            if (loadingDocuments) {
+                loadingDocuments.style.display = 'none'; // Ocultar cargando
+            }
         })
         .catch(error => {
             console.error('Error:', error);
             showAlert('Error al conectar con el servidor', 'danger');
-            if (loadingElement) loadingElement.style.display = 'none';
+            const loadingDocuments = document.getElementById('loadingDocuments');
+            if (loadingDocuments) {
+                loadingDocuments.style.display = 'none'; // Ocultar cargando
+            }
         });
     }
     
     function renderDocuments() {
         const documentosContainer = document.getElementById('documentosContainer');
-        if (!documentosContainer) return;
-        
         documentosContainer.innerHTML = '';
         
         if (documentosRequeridos.length === 0) {
@@ -215,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <p class="card-text text-muted small">${doc.descripcion || 'Sin descripción'}</p>
                         
-                        <div class="document-actions mt-auto pt-3">
+                        <div class="document-actions mt-3">
                             ${documentoSubido ? `
                                 <button class="btn btn-sm btn-outline-primary me-2 view-document" 
                                         data-document-id="${documentoSubido.documento_id}">
@@ -239,25 +213,32 @@ document.addEventListener('DOMContentLoaded', function() {
             documentosContainer.appendChild(card);
         });
         
+        // Asignar eventos a los botones
         document.querySelectorAll('.upload-document').forEach(btn => {
             btn.addEventListener('click', function() {
-                openUploadModal(this.getAttribute('data-doc-type'));
+                const tipoDocumentoId = this.getAttribute('data-doc-type');
+                openUploadModal(tipoDocumentoId);
             });
         });
         
         document.querySelectorAll('.view-document').forEach(btn => {
             btn.addEventListener('click', function() {
-                viewDocument(this.getAttribute('data-document-id'));
+                const documentoId = this.getAttribute('data-document-id');
+                viewDocument(documentoId);
             });
         });
     }
     
     function getStatusBadge(status) {
         switch(status) {
-            case 'aprobada': return '<span class="badge bg-success">Aprobado</span>';
-            case 'rechazada': return '<span class="badge bg-danger">Rechazado</span>';
-            case 'pendiente': return '<span class="badge bg-warning">Pendiente</span>';
-            default: return '<span class="badge bg-secondary">Sin subir</span>';
+            case 'aprobado':
+                return '<span class="badge bg-success">Aprobado</span>';
+            case 'rechazado':
+                return '<span class="badge bg-danger">Rechazado</span>';
+            case 'pendiente':
+                return '<span class="badge bg-warning">Pendiente</span>';
+            default:
+                return '<span class="badge bg-secondary">Desconocido</span>';
         }
     }
     
@@ -296,7 +277,9 @@ document.addEventListener('DOMContentLoaded', function() {
             credentials: 'include'
         })
         .then(response => {
-            if (!response.ok) throw new Error('Error en la respuesta del servidor');
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
             return response.json();
         })
         .then(data => {
@@ -322,8 +305,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const documento = documentosSubidos.find(d => d.documento_id == documentoId);
         if (!documento) return;
         
+        // Configurar información del documento
         document.getElementById('viewDocumentModalLabel').textContent = documento.nombre_documento;
-        document.getElementById('documentStatusBadge').innerHTML = getStatusBadge(documento.estado);
+        document.getElementById('documentStatusBadge').className = 'badge ' + (
+            documento.estado === 'aprobado' ? 'bg-success' : 
+            documento.estado === 'rechazado' ? 'bg-danger' : 'bg-warning'
+        );
+        document.getElementById('documentStatusBadge').textContent = 
+            documento.estado === 'aprobado' ? 'Aprobado' : 
+            documento.estado === 'rechazado' ? 'Rechazado' : 'Pendiente';
         
         document.getElementById('documentObservationsText').textContent = 
             documento.observaciones || 'Sin observaciones';
@@ -334,20 +324,31 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('documentValidationDate').textContent = 
             documento.fecha_validacion ? new Date(documento.fecha_validacion).toLocaleString() : '-';
         
-        document.getElementById('btnDownloadDocument').href = 
-            `../php/estudiantephp/documentos.php?action=downloadDocument&documento_id=${documentoId}`;
+        // Configurar botón de descarga
+        const btnDownload = document.getElementById('btnDownloadDocument');
+        btnDownload.href = `../php/estudiantephp/documentos.php?action=downloadDocument&documento_id=${documentoId}`;
         
+        // Mostrar vista previa según el tipo de archivo
         const viewer = document.getElementById('documentViewer');
         viewer.innerHTML = '';
         
-        const fileUrl = `../php/estudiantephp/documentos.php?action=viewDocument&documento_id=${documentoId}`;
-        
         if (documento.tipo_archivo.includes('pdf')) {
-            viewer.innerHTML = `<embed src="${fileUrl}" type="application/pdf" width="100%" height="500px">`;
+            viewer.innerHTML = `
+                <embed src="../php/estudiantephp/documentos.php?action=viewDocument&documento_id=${documentoId}" 
+                       type="application/pdf" width="100%" height="500px">
+            `;
         } else if (documento.tipo_archivo.includes('image')) {
-            viewer.innerHTML = `<img src="${fileUrl}" class="img-fluid" alt="Documento">`;
+            viewer.innerHTML = `
+                <img src="../php/estudiantephp/documentos.php?action=viewDocument&documento_id=${documentoId}" 
+                     class="img-fluid" alt="Documento">
+            `;
         } else {
-            viewer.innerHTML = `<div class="alert alert-info"><i class="bi bi-info-circle-fill me-2"></i>Vista previa no disponible. Descarga el documento para verlo.</div>`;
+            viewer.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    Vista previa no disponible. Descarga el documento para verlo.
+                </div>
+            `;
         }
         
         viewDocumentModal.show();

@@ -41,30 +41,64 @@ $metodo = $_SERVER['REQUEST_METHOD'];
 
 if ($metodo === 'GET') {
     try {
-        $sql = "SELECT
-                    s.solicitud_id, s.entidad_id, s.periodo_inicio, s.periodo_fin,
-                    s.horario_lv_inicio, s.horario_lv_fin, s.horario_sd_inicio, s.horario_sd_fin,
-                    s.actividades, s.fecha_solicitud, s.programa_id,
-                    e.nombre, e.apellido_paterno, e.apellido_materno, e.matricula, e.curp, e.sexo, e.edad,
-                    u.correo, e.telefono, e.domicilio, e.facebook, e.carrera, e.cuatrimestre,
-                    e.porcentaje_creditos, e.promedio,
-                    er.nombre as entidad_nombre, er.tipo_entidad, er.unidad_administrativa,
-                    er.domicilio as entidad_domicilio, er.municipio as entidad_municipio, er.telefono as entidad_telefono,
-                    er.funcionario_responsable, er.cargo_funcionario,
-                    p.nombre as programa_nombre, p.programa_id,
-                    pr.nombre as periodo_nombre
-                FROM solicitudes s
-                JOIN estudiantes e ON s.estudiante_id = e.estudiante_id
-                JOIN usuarios u ON e.usuario_id = u.usuario_id
-                JOIN entidades_receptoras er ON s.entidad_id = er.entidad_id
-                JOIN programas p ON s.programa_id = p.programa_id
-                JOIN periodos_registro pr ON s.periodo_id = pr.periodo_id
-                WHERE s.estudiante_id = :estudiante_id
-                ORDER BY s.solicitud_id DESC
-                LIMIT 1";
+        // Verificamos si se está pidiendo un ID específico desde la página de impresión
+        if (isset($_GET['id']) && !empty($_GET['id'])) {
+            $solicitud_id_especifica = filter_var($_GET['id'], FILTER_SANITIZE_NUMBER_INT);
+            
+            // La consulta ahora busca por un ID de solicitud específico, pero también
+            // se asegura de que pertenezca al estudiante que ha iniciado sesión por seguridad.
+            $sql = "SELECT
+                        s.solicitud_id, s.entidad_id, s.periodo_inicio, s.periodo_fin,
+                        s.horario_lv_inicio, s.horario_lv_fin, s.horario_sd_inicio, s.horario_sd_fin,
+                        s.actividades, s.fecha_solicitud, s.programa_id,
+                        e.nombre, e.apellido_paterno, e.apellido_materno, e.matricula, e.curp, e.sexo, e.edad,
+                        u.correo, e.telefono, e.domicilio, e.facebook, e.carrera, e.cuatrimestre,
+                        e.porcentaje_creditos, e.promedio,
+                        er.nombre as entidad_nombre, er.tipo_entidad, er.unidad_administrativa,
+                        er.domicilio as entidad_domicilio, er.municipio as entidad_municipio, er.telefono as entidad_telefono,
+                        er.funcionario_responsable, er.cargo_funcionario,
+                        p.nombre as programa_nombre,
+                        pr.nombre as periodo_nombre
+                    FROM solicitudes s
+                    JOIN estudiantes e ON s.estudiante_id = e.estudiante_id
+                    JOIN usuarios u ON e.usuario_id = u.usuario_id
+                    JOIN entidades_receptoras er ON s.entidad_id = er.entidad_id
+                    JOIN programas p ON s.programa_id = p.programa_id
+                    JOIN periodos_registro pr ON s.periodo_id = pr.periodo_id
+                    WHERE s.solicitud_id = :solicitud_id AND s.estudiante_id = :estudiante_id";
+            
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':solicitud_id', $solicitud_id_especifica, PDO::PARAM_INT);
+            $stmt->bindParam(':estudiante_id', $estudiante_id, PDO::PARAM_INT);
 
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':estudiante_id', $estudiante_id, PDO::PARAM_INT);
+        } else {
+            // Comportamiento original: Cargar la última solicitud para la página de edición.
+            $sql = "SELECT
+                        s.solicitud_id, s.entidad_id, s.periodo_inicio, s.periodo_fin,
+                        s.horario_lv_inicio, s.horario_lv_fin, s.horario_sd_inicio, s.horario_sd_fin,
+                        s.actividades, s.fecha_solicitud, s.programa_id,
+                        e.nombre, e.apellido_paterno, e.apellido_materno, e.matricula, e.curp, e.sexo, e.edad,
+                        u.correo, e.telefono, e.domicilio, e.facebook, e.carrera, e.cuatrimestre,
+                        e.porcentaje_creditos, e.promedio,
+                        er.nombre as entidad_nombre, er.tipo_entidad, er.unidad_administrativa,
+                        er.domicilio as entidad_domicilio, er.municipio as entidad_municipio, er.telefono as entidad_telefono,
+                        er.funcionario_responsable, er.cargo_funcionario,
+                        p.nombre as programa_nombre, p.programa_id,
+                        pr.nombre as periodo_nombre
+                    FROM solicitudes s
+                    JOIN estudiantes e ON s.estudiante_id = e.estudiante_id
+                    JOIN usuarios u ON e.usuario_id = u.usuario_id
+                    JOIN entidades_receptoras er ON s.entidad_id = er.entidad_id
+                    JOIN programas p ON s.programa_id = p.programa_id
+                    JOIN periodos_registro pr ON s.periodo_id = pr.periodo_id
+                    WHERE s.estudiante_id = :estudiante_id
+                    ORDER BY s.solicitud_id DESC
+                    LIMIT 1";
+            
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':estudiante_id', $estudiante_id, PDO::PARAM_INT);
+        }
+
         $stmt->execute();
         $solicitud = $stmt->fetch(PDO::FETCH_ASSOC);
 

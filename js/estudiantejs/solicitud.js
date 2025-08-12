@@ -96,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function() {
             entidad_id: document.getElementById('entidad_id').value,
             programa_id: document.getElementById('programa_id').value,
             
-            // Datos personales
             nombre: document.getElementById('nombre').value,
             apellido_paterno: document.getElementById('apellido_paterno').value,
             apellido_materno: document.getElementById('apellido_materno').value,
@@ -112,7 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
             porcentaje_creditos: document.getElementById('porcentaje_creditos').value,
             promedio: document.getElementById('promedio').value,
             
-            // Datos de la entidad
             entidad_nombre: document.getElementById('entidad_nombre').value,
             tipo_entidad: document.getElementById('tipo_entidad').value,
             unidad_administrativa: document.getElementById('unidad_administrativa').value,
@@ -122,7 +120,6 @@ document.addEventListener('DOMContentLoaded', function() {
             funcionario_responsable: document.getElementById('funcionario_responsable').value,
             cargo_funcionario: document.getElementById('cargo_funcionario').value,
             
-            // Datos del servicio
             programa_nombre: document.getElementById('programa_nombre').value,
             actividades: document.getElementById('actividades').value,
             periodo_inicio: document.getElementById('periodo_inicio').value,
@@ -158,14 +155,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // ✅ Esta es la versión final del botón para imprimir
     btnGenerar.addEventListener('click', () => {
         const solicitudId = document.getElementById('solicitud_id').value;
         if (solicitudId) {
-            window.open(`imprimir_solicitud.html?id=${solicitudId}`, '_blank');
+            // Apuntamos al script que genera el HTML para imprimir y lo abre en una nueva pestaña.
+            // (Asegúrate de que el archivo en la carpeta php se llame 'imprimir_anexo_html.php' o como lo hayas nombrado).
+            window.open(`../php/estudiantephp/imprimir_anexo_html.php?id=${solicitudId}`, '_blank');
         } else {
-            showAlert('No se puede generar la solicitud porque no se ha cargado ninguna.', 'warning');
+            showAlert('No se puede generar el anexo porque no se ha cargado ninguna solicitud.', 'warning');
         }
     });
 
+    // Carga los datos de la solicitud cuando la página esté lista.
     cargarDatosSolicitud();
 });
