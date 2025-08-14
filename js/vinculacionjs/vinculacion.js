@@ -1,6 +1,4 @@
-
-
-$(document).ready(function() {
+$(document).ready(function() { 
 
     // --- 1. VERIFICACIÓN DE SESIÓN AL CARGAR LA PÁGINA ---
     function verificarSesionYActualizarUI() {
@@ -55,13 +53,14 @@ $(document).ready(function() {
         $('#btnFiltrar').on('click', () => $('#tablaVinculacion').DataTable().ajax.reload());
         
         $('#btnRefrescar').on('click', () => {
-            // Muestra la notificación de éxito estándar
-            Swal.fire(
-                '¡Actualizado!',
-                'La tabla se ha recargado correctamente.',
-                'success'
-            );
-            // Recarga los datos de la tabla sin resetear la paginación
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Tabla actualizada',
+                showConfirmButton: false,
+                timer: 1500
+            });
             $('#tablaVinculacion').DataTable().ajax.reload(null, false);
         });
 
@@ -142,7 +141,9 @@ $(document).ready(function() {
                 }
             },
             "columns": [
-                { "data": "solicitud_id" },
+                // ===== CAMBIO PRINCIPAL AQUÍ =====
+                // La columna ID se mantiene para acceder al dato, pero se oculta de la vista.
+                { "data": "solicitud_id", "visible": false, "searchable": false }, 
                 { "data": "nombre_alumno" },
                 { "data": "matricula" },
                 { "data": "nombre_entidad" },
@@ -154,15 +155,19 @@ $(document).ready(function() {
                 { "data": "estado_comprobante_pago", "render": (data, type, row) => renderizarBotonEstado(data, row, 'pago') },
                 { "data": null, "render": renderizarAccionesGenerar, "orderable": false, "searchable": false }
             ],
-            
-            // <-- CAMBIOS AQUÍ
-            "pageLength": 5, // Establece el número de registros por defecto a 5
-            "lengthMenu": [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"] ], // Actualiza el menú para incluir la opción de 5
-
-            "columnDefs": [{ "className": "text-center", "targets": [4, 10] }],
+            "pageLength": 10,
+            "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "Todos"] ],
+            "columnDefs": [{ "className": "text-center align-middle", "targets": [3, 4, 10] }], // Los índices se mantienen gracias a "visible:false"
             "language": { "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
             "responsive": true,
-            "bFilter": false,
+            "bFilter": false, // Desactiva el filtro nativo de DataTables
+            "drawCallback": function(settings) {
+                // Inicializa los tooltips de Bootstrap después de que la tabla se dibuje/redibuje
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
         });
     }
 
@@ -176,14 +181,14 @@ $(document).ready(function() {
         }
         const icons = {
             presentacion: { id: documentos['1'], icon: 'bi-file-earmark-text-fill', title: 'Carta de Presentación' },
-            aceptacion:   { id: documentos['6'], icon: 'bi-file-earmark-person-fill', title: 'Carta de Aceptación' },
+            aceptacion:   { id: documentos['6'], icon: 'bi-file-earmark-check-fill', title: 'Carta de Aceptación' },
             informe1:     { id: documentos['2'], icon: 'bi-file-earmark-bar-graph-fill', title: 'Primer Informe' },
             informe2:     { id: documentos['3'], icon: 'bi-file-earmark-bar-graph-fill', title: 'Segundo Informe' },
             pago:         { id: documentos['5'], icon: 'bi-receipt-cutoff', title: 'Comprobante de Pago' }
         };
         const html = Object.values(icons).map(doc => doc.id
-            ? `<a href="../php/vinculacionphp/ver_documento.php?id=${doc.id}" target="_blank" title="Ver ${doc.title}"><i class="bi ${doc.icon} text-success"></i></a>`
-            : `<i class="bi ${doc.icon} text-muted" title="${doc.title} (Faltante)"></i>`
+            ? `<a href="../php/vinculacionphp/ver_documento.php?id=${doc.id}" target="_blank" class="text-success me-2" title="Ver ${doc.title}"><i class="bi ${doc.icon}"></i></a>`
+            : `<i class="bi ${doc.icon} text-muted me-2" title="${doc.title} (Faltante)"></i>`
         ).join(' ');
         
         return `<div class="fs-5" style="white-space: nowrap;">${html}</div>`;
@@ -226,7 +231,6 @@ $(document).ready(function() {
 // --- FUNCIONES GLOBALES (necesitan estar fuera de document.ready para ser accesibles desde el HTML con onclick) ---
 
 function generarDocumento(tipo, solicitudId) {
-    // Apunta al script PHP que se encarga de generar los PDFs.
     window.open(`../php/vinculacionphp/generar_carta.php?tipo=${tipo}&id=${solicitudId}`, '_blank');
 }
 
@@ -244,7 +248,7 @@ function actualizarEstado(solicitudId, tipoDoc, nuevoEstado) {
     }).then(result => {
         if (result.isConfirmed) {
             $.ajax({
-                url: '../php/vinculacionphp/actualizar_estado_carta.php', // Apunta al nombre de archivo correcto
+                url: '../php/vinculacionphp/actualizar_estado_carta.php',
                 type: 'POST',
                 data: {
                     solicitud_id: solicitudId,

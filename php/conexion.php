@@ -1,7 +1,7 @@
 <?php
 // Configuración para XAMPP (ajusta según tu entorno)
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'servicio_social');
+define('DB_NAME', 'servicio_social_');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
